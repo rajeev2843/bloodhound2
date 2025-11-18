@@ -141,11 +141,25 @@ def inject_custom_css():
         </style>
     """, unsafe_allow_html=True)
 
-# Modern metric card
+# Modern metric card (Fixed to prevent crashes)
 def metric_card(label, value, delta=None, icon="📊"):
     delta_html = ""
     if delta:
-        color = "#4CAF50" if "+" in str(delta) or delta > 0 else "#F44336"
+        # Safe check for string vs number
+        is_positive = False
+        try:
+            if isinstance(delta, str):
+                # If it has a "+", it's positive/green
+                is_positive = "+" in delta
+            elif isinstance(delta, (int, float)):
+                # If it's a number > 0, it's positive/green
+                is_positive = delta > 0
+        except:
+            is_positive = False # Fallback
+
+        # Green for positive, Red for negative
+        color = "#4CAF50" if is_positive else "#F44336"
+        
         delta_html = f'<div style="color: {color}; font-size: 14px; margin-top: 5px;">{delta}</div>'
     
     st.markdown(f"""
@@ -241,3 +255,4 @@ def risk_badge(risk_level):
             border: 2px solid {color};
         ">{risk_level}</span>
     """
+    
